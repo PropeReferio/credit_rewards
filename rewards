@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+from argparse import ArgumentParser
+
+
+def get_threshold():
+    parser = ArgumentParser()
+    parser.add_argument('-b',
+                        '--base-rate',
+                        type=float,
+                        required=True,
+                        help='The rewards rate to compare the considered '
+                             'card to')
+    parser.add_argument('-bf',
+                        '--base-fee',
+                        type=float,
+                        default=0,
+                        help='The annual fee to compare the considered '
+                             'card to')
+    parser.add_argument('-p',
+                        '--proposed-rate',
+                        required=True,
+                        type=float,
+                        help='The rewards rate of the card being considered')
+    parser.add_argument('-pf',
+                        '--proposed-fee',
+                        type=float,
+                        required=True,
+                        help='The annual fee of the card being considered')
+    args = parser.parse_args()
+    base_rate = args.base_rate
+    base_fee = args.base_fee
+    proposed_rate = args.proposed_rate
+    proposed_fee = args.proposed_fee
+
+    annual_fee_diff = proposed_fee - base_fee
+    rate_diff = proposed_rate - base_rate
+    try:
+        threshold = round(annual_fee_diff / rate_diff, 2)
+    except ZeroDivisionError as e:
+        raise f"The rates are the same, comparison isn't possible: {e}"
+
+    return (f"After spending ${threshold}, the proposed card would have a "
+            "higher net return")
+
+
+print(get_threshold())
